@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ole Hickory Land & Lawn</title>
   <style>
+    /* 🌿 General Styles */
     body {
       margin: 0;
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.5)),
-                  url('https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.55)),
+                  url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80')
+                  no-repeat center center fixed;
       background-size: cover;
       color: #fff;
       text-align: center;
       min-height: 100vh;
-      animation: zoomIn 25s ease-in-out infinite alternate;
-    }
-
-    @keyframes zoomIn {
-      from { background-size: 100%; }
-      to { background-size: 110%; }
     }
 
     header {
@@ -34,6 +30,11 @@
       margin: 0;
       font-size: 2.5em;
       color: #00ff88;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    nav {
+      margin-top: 10px;
     }
 
     nav a {
@@ -42,27 +43,268 @@
       margin: 0 15px;
       font-weight: bold;
       font-size: 1.1em;
+      transition: color 0.3s ease;
     }
 
     nav a:hover {
       color: #00ff88;
     }
+
+    .section {
+      display: none;
+      padding: 60px 20px;
+      animation: fadeIn 0.7s ease;
+    }
+
+    .active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 🌱 Form Styles */
+    form {
+      max-width: 500px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.12);
+      padding: 25px;
+      border-radius: 15px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+    }
+
+    button {
+      margin-top: 15px;
+      background: #00ff88;
+      border: none;
+      color: #000;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #00cc6a;
+      transform: scale(1.05);
+    }
+
+    /* 💬 Chatbox */
+    #chat-box {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 300px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    #chat-header {
+      background: #00ff88;
+      color: #000;
+      padding: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #chat-messages {
+      padding: 10px;
+      height: 250px;
+      overflow-y: auto;
+      font-size: 0.9em;
+      text-align: left;
+    }
+
+    #chat-input {
+      display: flex;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    #chat-input input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    #chat-input button {
+      margin-left: 8px;
+      background: #00ff88;
+      color: #000;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 <body>
+
   <header>
     <h1>Ole Hickory Land & Lawn 🌿</h1>
     <nav>
-      <a href="#">Home</a>
-      <a href="#">Quote</a>
-      <a href="#">Contact</a>
-      <a href="#">Live Chat</a>
+      <a href="#" onclick="showSection('home')">Home</a>
+      <a href="#" onclick="showSection('quote')">Quote</a>
+      <a href="#" onclick="showSection('contact')">Contact Us</a>
+      <a href="#" onclick="toggleChat()">Live Chat</a>
     </nav>
   </header>
 
-  <main>
+  <!-- 🏡 Home -->
+  <section id="home" class="section active">
     <h2>Professional Land & Lawn Care</h2>
-    <p>Serving Bassett, VA — Reliable and professional service for your property.</p>
-  </main>
+    <p>Based in Bassett, VA. Reliable service for your land and lawn — every time.</p>
+  </section>
+
+  <!-- 🧾 Quote -->
+  <section id="quote" class="section">
+    <h2>Request a Quote</h2>
+    <form id="quoteForm">
+      <label>Work Type:</label>
+      <select id="workType" required>
+        <option value="">Select...</option>
+        <option value="lawn">Lawn Work</option>
+        <option value="grounds">Grounds Work</option>
+      </select>
+
+      <label>Area Size:</label>
+      <input type="text" id="areaSize" placeholder="Approximate area in sq ft" required>
+
+      <label>Options (comma separated):</label>
+      <input type="text" id="options" placeholder="e.g., aeration, weekly cut">
+
+      <label>First Name:</label>
+      <input type="text" id="firstName" required>
+
+      <label>Last Name (optional):</label>
+      <input type="text" id="lastName">
+
+      <label>Email:</label>
+      <input type="email" id="email" required>
+
+      <label>Phone:</label>
+      <input type="tel" id="phone" required>
+
+      <label>Carrier:</label>
+      <select id="carrier" required>
+        <option value="">Select Carrier</option>
+        <option value="verizon">Verizon</option>
+        <option value="att">AT&T</option>
+        <option value="tmobile">T-Mobile</option>
+        <option value="sprint">Sprint</option>
+        <option value="cricket">Cricket</option>
+        <option value="boost">Boost Mobile</option>
+      </select>
+
+      <label>Zipcode:</label>
+      <input type="text" id="zipcode" required>
+
+      <button type="button" onclick="sendQuote()">Submit Quote</button>
+    </form>
+    <p id="quoteStatus"></p>
+  </section>
+
+  <!-- ☎️ Contact -->
+  <section id="contact" class="section">
+    <h2>Contact Us</h2>
+    <p>📞 Phone: <strong>272-224-2226</strong></p>
+    <p>📍 Location: <strong>Bassett, VA</strong></p>
+  </section>
+
+  <!-- 💬 Live Chat -->
+  <div id="chat-box">
+    <div id="chat-header" onclick="toggleChat()">💬 OleBot - Click to Close</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input">
+      <input type="text" id="chatMessage" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // 🌿 Section Toggle
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // 💬 Chat
+    function toggleChat() {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
+      if (chatBox.style.display === 'flex') chatBox.scrollIntoView({behavior: 'smooth'});
+    }
+
+    async function sendMessage() {
+      const message = document.getElementById('chatMessage').value.trim();
+      if (!message) return;
+      const chat = document.getElementById('chat-messages');
+      chat.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+      document.getElementById('chatMessage').value = '';
+
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
+      chat.innerHTML += `<p><strong>OleBot:</strong> ${data.reply}</p>`;
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // 🧾 Quote Submission
+    async function sendQuote() {
+      const formData = {
+        work_type: document.getElementById('workType').value,
+        area_size: document.getElementById('areaSize').value,
+        options: document.getElementById('options').value,
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        carrier: document.getElementById('carrier').value,
+        zipcode: document.getElementById('zipcode').value
+      };
+
+      const res = await fetch('/send-quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+      if (data.status === "sent") {
+        document.getElementById('quoteStatus').innerText = "✅ Quote submitted! Check your phone for confirmation.";
+      } else {
+        document.getElementById('quoteStatus').innerText = "⚠️ Error sending quote. Please try again.";
+      }
+    }
+  </script>
 </body>
 </html>
