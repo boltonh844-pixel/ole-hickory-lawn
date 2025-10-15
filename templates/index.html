@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script>
+  (function(){
+    emailjs.init("sMgwXxQRSjhVGoEyM"); // 🔹 replace with your EmailJS public key
+  })();
+</script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ole Hickory Land & Lawn</title>
@@ -280,69 +287,79 @@
   </div>
 
   <script>
-    // 🌿 Section Toggle
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+  // 🌿 Section Toggle
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // 💬 Toggle Chatbox
+  function toggleChat() {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
+    if (chatBox.style.display === 'flex') chatBox.scrollIntoView({behavior: 'smooth'});
+  }
+
+  // 💬 Send Chat Message
+  async function sendMessage() {
+    const message = document.getElementById('chatMessage').value.trim();
+    if (!message) return;
+    const chat = document.getElementById('chat-messages');
+    chat.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+    document.getElementById('chatMessage').value = '';
+
+    // Ask for follow-up email
+    const userEmail = prompt("Please enter your email so we can follow up:");
+    if (!userEmail) {
+      chat.innerHTML += `<p><strong>OleBot:</strong> We can’t follow up without an email address.</p>`;
+      return;
     }
 
-    // 💬 Chat
-    function toggleChat() {
-      const chatBox = document.getElementById('chat-box');
-      chatBox.style.display = (chatBox.style.display === 'flex') ? 'none' : 'flex';
-      if (chatBox.style.display === 'flex') chatBox.scrollIntoView({behavior: 'smooth'});
-    }
-
-    async function sendMessage() {
-      const message = document.getElementById('chatMessage').value.trim();
-      if (!message) return;
-      const chat = document.getElementById('chat-messages');
-      chat.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
-      document.getElementById('chatMessage').value = '';
-
-      const response = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-      const data = await response.json();
-      chat.innerHTML += `<p><strong>OleBot:</strong> ${data.reply}</p>`;
+    // Send email via EmailJS
+    emailjs.send("service_o1ulw5f", "template_esv728i", {
+      user_name: "Chat User",
+      user_email: userEmail,
+      user_phone: "N/A",
+      user_message: message
+    }).then(() => {
+      chat.innerHTML += `<p><strong>OleBot:</strong> Thanks! We’ll follow up soon via email.</p>`;
       chat.scrollTop = chat.scrollHeight;
-    }
+    }, (error) => {
+      chat.innerHTML += `<p><strong>OleBot:</strong> Sorry, something went wrong.</p>`;
+    });
+  }
 
-    // ⚡ Preset Chat Buttons
-    function sendQuickOption(option) {
-      document.getElementById('chatMessage').value = option;
-      sendMessage();
-    }
+  // 🧾 Quote Form Submission
+  async function sendQuote() {
+    const formData = {
+      work_type: document.getElementById('workType').value,
+      area_size: document.getElementById('areaSize').value,
+      options: document.getElementById('options').value,
+      first_name: document.getElementById('firstName').value,
+      last_name: document.getElementById('lastName').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      carrier: document.getElementById('carrier').value,
+      zipcode: document.getElementById('zipcode').value
+    };
 
-    // 🧾 Quote Submission
-    async function sendQuote() {
-      const formData = {
-        work_type: document.getElementById('workType').value,
-        area_size: document.getElementById('areaSize').value,
-        options: document.getElementById('options').value,
-        first_name: document.getElementById('firstName').value,
-        last_name: document.getElementById('lastName').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        carrier: document.getElementById('carrier').value,
-        zipcode: document.getElementById('zipcode').value
-      };
+    // Send quote via EmailJS
+    emailjs.send("YOUR_SERVICE_ID", "template_esv728i", {
+      user_name: formData.first_name + " " + formData.last_name,
+      user_email: formData.email,
+      user_phone: formData.phone,
+      user_message: `Quote Request:
+        Type: ${formData.work_type}
+        Area: ${formData.area_size}
+        Options: ${formData.options}
+        Zipcode: ${formData.zipcode}`
+    }).then(() => {
+      document.getElementById('quoteStatus').innerText = "✅ Quote submitted! We'll be in touch soon.";
+    }, (error) => {
+      document.getElementById('quoteStatus').innerText = "⚠️ Error sending quote. Please try again.";
+    });
+  }
+</script>
 
-      const res = await fetch('/send-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await res.json();
-      if (data.status === "sent") {
-        document.getElementById('quoteStatus').innerText = "✅ Quote submitted! Check your phone for confirmation.";
-      } else {
-        document.getElementById('quoteStatus').innerText = "⚠️ Error sending quote. Please try again.";
-      }
-    }
-  </script>
 </body>
 </html>
