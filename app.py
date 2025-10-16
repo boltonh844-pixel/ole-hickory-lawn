@@ -1,78 +1,50 @@
-from flask import Flask, request, jsonify, render_template
-import os
-import base64
-from email.mime.text import MIMEText
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-import pickle
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-
-# 🔑 Authenticate Gmail once
-def get_gmail_service():
-    creds = None
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=8080)
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    return build('gmail', 'v1', credentials=creds)
-
-
-def send_email(subject, body_text):
-    service = get_gmail_service()
-    message = MIMEText(body_text)
-    message['to'] = "YOUR_EMAIL@gmail.com"  # 📨 Replace this
-    message['subject'] = subject
-    raw = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    message = {'raw': raw}
-    service.users().messages().send(userId="me", body=message).execute()
-
-
+# --- Home Page ---
 @app.route('/')
 def home():
     return render_template('index.html')
 
+# --- Contact Form Submission ---
+@app.route('/contact', methods=['POST'])
+def contact():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    message = request.form.get('message')
 
-@app.route('/send-quote', methods=['POST'])
-def send_quote():
+    # You can later add email sending logic here
+    print(f"📩 Contact form from {name} ({email}): {message}")
+    return jsonify({"status": "success", "message": "Thanks for reaching out! We'll be in touch soon."})
+
+# --- Quote Request ---
+@app.route('/get-quote', methods=['POST'])
+def get_quote():
     data = request.json
-    msg = f"""
-    🧾 New Quote Request from Ole Hickory Site
+    print("🧾 New Quote Request:", data)
+    # You could store this in a database or email it later
+    return jsonify({"status": "received", "message": "Your quote request has been submitted!"})
 
-    Name: {data.get('first_name')} {data.get('last_name')}
-    Email: {data.get('email')}
-    Phone: {data.get('phone')}
-    Work Type: {data.get('work_type')}
-    Area Size: {data.get('area_size')}
-    Options: {data.get('options')}
-    Zipcode: {data.get('zipcode')}
-    """
-
-    send_email("🌿 Ole Hickory Quote Request", msg)
-    return jsonify({"status": "sent"})
-
-
+# --- Live Chat Endpoint ---
 @app.route('/chat', methods=['POST'])
 def chat():
-    data = request.json
-    msg = f"""
-    💬 Chat Message from Website
+    user_message = request.json.get('message', '').lower()
 
-    Message: {data.get('message')}
-    """
-    send_email("💬 Ole Hickory Live Chat Message", msg)
-    return jsonify({"reply": "Thanks! We'll follow up soon via email."})
+    # --- Simple AI-style auto-responses ---
+    if "quote" in user_message:
+        reply = "Sure! You can request a quick quote by clicking the 'Quote' button above."
+    elif "seed" in user_message or "grass" in user_message:
+        reply = "We use premium cool-season grass blends perfect for Virginia lawns."
+    elif "date" in user_message or "available" in user_message:
+        reply = "We currently have open slots this week for new clients — would you like to book a visit?"
+    elif "hello" in user_message or "hi" in user_message:
+        reply = "Hey there! 👋 Welcome to Ole Hickory — how can we help with your lawn today?"
+    else:
+        reply = "Thanks for reaching out! A team member will follow up soon."
 
+    print(f"💬 Chat message received: {user_message}")
+    return jsonify({"reply": reply})
 
 if __name__ == '__main__':
     app.run(debug=True)
